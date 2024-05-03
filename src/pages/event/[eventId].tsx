@@ -3,19 +3,24 @@ import Layout from "@/components/Layout";
 // import Button from '@/components/Button';
 
 import { getEventById } from "@/lib/events";
+import { getPreviewImageById } from "@/lib/storage";
 import { LiveBeatEvent } from "@/types/events";
 import { useEffect, useState } from "react";
 import { useParams } from "wouter";
 
 function Event() {
   const params: { eventId: string } = useParams();
-  // const image = {
-  //   url: events[0].imageUrl,
-  //   alt: "",
-  // };
 
   const [event, setEvent] = useState<LiveBeatEvent | undefined>();
 
+  const imageUrl = event?.imageFileId && getPreviewImageById(event.imageFileId);
+
+  const image = {
+    url: imageUrl,
+    alt: "",
+    height: event?.imageHeight,
+    width: event?.imageWidth,
+  };
   useEffect(() => {
     (async function run() {
       const { event } = await getEventById(params.eventId);
@@ -27,15 +32,15 @@ function Event() {
     <Layout>
       <Container className="grid gap-12 grid-cols-1 md:grid-cols-2">
         <div>
-          {/* {image?.url && (
+          {image?.url && (
             <img
               className="block rounded"
-              width={800}
-              height={450}
-              src={image.url}
+              width={image.width}
+              height={image.height}
+              src={image.url.toString()}
               alt={image.alt}
             />
-          )} */}
+          )}
         </div>
 
         <div>
