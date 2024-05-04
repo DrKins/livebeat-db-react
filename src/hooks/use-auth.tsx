@@ -1,10 +1,10 @@
 import {
   deleteCurrentSession,
-  getCurrentSession,
   logIn,
   verifySession,
   VerifySessionOptions,
 } from "@/lib/auth";
+import { getTeams } from "@/lib/user";
 import { Models } from "appwrite";
 import {
   createContext,
@@ -16,6 +16,7 @@ import {
 
 interface LiveBeatAuthContext {
   session?: Models.Session;
+  isAdmin?: boolean;
   logOut: Function;
   logIn: Function;
   verifySession: Function;
@@ -36,13 +37,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
 export function useAuthState() {
   const [session, setSession] = useState<Models.Session>();
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!session?.$id) return;
     (async function run() {
-      const data = await getCurrentSession();
-      setSession(data.session);
+      const { teams } = await getTeams();
+      const isAdmin = !!teams.find(
+        (team) => team.$id === import.meta.env.VITE_APPWRITE_TEAM_ADMIN_ID
+      );
+      setIsAdmin(isAdmin);
     })();
-  }, []);
+  }, [session?.$id]);
 
   async function logOut() {
     await deleteCurrentSession();
@@ -54,7 +60,13 @@ export function useAuthState() {
     setSession(data);
   }
 
-  return { session, logOut, logIn, verifySession: verifySessionAndSave };
+  return {
+    session,
+    isAdmin,
+    logOut,
+    logIn,
+    verifySession: verifySessionAndSave,
+  };
 }
 
 export function useAuth() {
