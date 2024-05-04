@@ -1,6 +1,7 @@
 import { LiveBeatEvent } from "@/types/events";
 import { ID, Models } from "appwrite";
 import { databases } from "./appwrite";
+import { deleteFileById } from "./storage";
 
 export async function getEvents() {
   const { documents } = await databases.listDocuments(
@@ -12,7 +13,7 @@ export async function getEvents() {
   };
 }
 
-export async function getEventById(eventId: string) {
+export async function getEventById(eventId: LiveBeatEvent["$id"]) {
   const document = await databases.getDocument(
     import.meta.env.VITE_APPWRITE_EVENTS_DATABASE_ID,
     import.meta.env.VITE_APPWRITE_EVENTS_COLLECTIONS_ID,
@@ -33,6 +34,18 @@ export async function createEvent(event: Omit<LiveBeatEvent, "$id">) {
   return {
     event: mapDocumentToEvent(document),
   };
+}
+
+export async function deleteEventById(eventId: LiveBeatEvent["$id"]) {
+  const { event } = await getEventById(eventId);
+  if (event.imageFileId) {
+    await deleteFileById(event.imageFileId);
+  }
+  await databases.deleteDocument(
+    import.meta.env.VITE_APPWRITE_EVENTS_DATABASE_ID,
+    import.meta.env.VITE_APPWRITE_EVENTS_COLLECTIONS_ID,
+    eventId
+  );
 }
 
 function mapDocumentToEvent(document: Models.Document) {

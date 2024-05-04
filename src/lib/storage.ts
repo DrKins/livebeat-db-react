@@ -16,3 +16,10 @@ export function getPreviewImageById(fileId: string) {
     fileId
   );
 }
+
+export function deleteFileById(fileId: string) {
+  return storage.deleteFile(
+    import.meta.env.VITE_APPWRITE_EVENTS_BUCKET_IMAGES_ID,
+    fileId
+  );
+}

@@ -1,15 +1,16 @@
+import Button from "@/components/Button";
 import Container from "@/components/Container";
 import Layout from "@/components/Layout";
-// import Button from '@/components/Button';
 
-import { getEventById } from "@/lib/events";
+import { deleteEventById, getEventById } from "@/lib/events";
 import { getPreviewImageById } from "@/lib/storage";
 import { LiveBeatEvent } from "@/types/events";
 import { useEffect, useState } from "react";
-import { useParams } from "wouter";
+import { useLocation, useParams } from "wouter";
 
 function Event() {
   const params: { eventId: string } = useParams();
+  const [, navigate] = useLocation();
 
   const [event, setEvent] = useState<LiveBeatEvent | undefined>();
 
@@ -27,6 +28,12 @@ function Event() {
       setEvent(event);
     })();
   }, [params.eventId]);
+
+  async function handleOnDeleteEvent() {
+    if (!event?.$id) return;
+    await deleteEventById(event.$id);
+    navigate("/");
+  }
 
   return (
     <Layout>
@@ -58,9 +65,11 @@ function Event() {
               <p className="text-lg font-medium text-neutral-600 dark:text-neutral-200">
                 <strong>Location:</strong> {event?.location}
               </p>
-              {/* <p className="mt-6">
-                <Button color="red">Delete Event</Button>
-              </p> */}
+              <p className="mt-6">
+                <Button color="red" onClick={handleOnDeleteEvent}>
+                  Delete Event
+                </Button>
+              </p>
             </>
           )}
         </div>

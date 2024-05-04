@@ -7,10 +7,12 @@ import EventCard from "@/components/EventCard";
 import Layout from "@/components/Layout";
 
 import { getEvents } from "@/lib/events";
+import { getPreviewImageById } from "@/lib/storage";
 import { useEffect, useState } from "react";
 
 function Home() {
   const [events, setEvents] = useState<Array<LiveBeatEvent> | undefined>();
+
   useEffect(() => {
     (async function run() {
       const { events } = await getEvents();
@@ -38,19 +40,27 @@ function Home() {
           <Container>
             <div className="grid gap-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {events.map((event) => {
+                const imageUrl =
+                  event?.imageFileId && getPreviewImageById(event.imageFileId);
+                const eventCardProps: Record<string, object | string | number> =
+                  {};
+
+                if (imageUrl) {
+                  eventCardProps.image = {
+                    alt: "",
+                    height: event.imageHeight,
+                    url: imageUrl,
+                    width: event.imageWidth,
+                  };
+                }
                 return (
                   <Link key={event.$id} href={`/event/${event.$id}`}>
                     <span>
                       <EventCard
                         date={event.date}
-                        // image={{
-                        //   alt: "",
-                        //   height: event.imageHeight,
-                        //   url: event.imageUrl,
-                        //   width: event.imageWidth,
-                        // }}
                         location={event.location}
                         name={event.name}
+                        {...eventCardProps}
                       />
                     </span>
                   </Link>
