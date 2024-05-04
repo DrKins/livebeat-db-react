@@ -1,5 +1,6 @@
 import Container from "@/components/Container";
 import { useAuth } from "@/hooks/use-auth";
+import { AppwriteException } from "appwrite";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 
@@ -21,7 +22,9 @@ function Session() {
         if (userId) await verifySession({ userId, secret });
         navigate("/");
       } catch (error) {
-        console.error("something went wrong with verify Session");
+        if (error instanceof AppwriteException) {
+          navigate(`/login?error=${error.type}`);
+        }
       }
     })();
   }, []);

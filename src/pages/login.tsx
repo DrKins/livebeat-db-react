@@ -5,12 +5,22 @@ import FormRow from "@/components/FormRow";
 import InputText from "@/components/InputText";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/hooks/use-auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Redirect } from "wouter";
 
 function LogIn() {
   const { logIn, session } = useAuth();
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string>();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    if (error === "user_invalid_token") {
+      setError("Your login session expired, please try again.");
+    }
+  }, []);
+
   async function handleOnSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
 
@@ -34,6 +44,11 @@ function LogIn() {
     <Layout>
       <Container>
         <h1 className="text-3xl font-bold text-center mb-6">Log In</h1>
+        {error && (
+          <p className="max-w-xs mx-auto mb-4 bg-red-50 p-4 mt-6 rounded">
+            {error}
+          </p>
+        )}
         {!sent && (
           <form
             className="max-w-xs border border-slate-200 dark:border-slate-500 rounded p-6 mx-auto"

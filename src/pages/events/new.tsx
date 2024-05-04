@@ -10,6 +10,7 @@ import InputText from "@/components/InputText";
 import Layout from "@/components/Layout";
 import { createEvent } from "@/lib/events";
 import { uploadFile } from "@/lib/storage";
+import { AppwriteException } from "appwrite";
 import { useLocation } from "wouter";
 
 interface LiveBeatImage {
@@ -20,7 +21,7 @@ interface LiveBeatImage {
 
 function EventNew() {
   const [, navigate] = useLocation();
-  const [error] = useState<string>();
+  const [error, setError] = useState<string>();
   const [image, setImage] = useState<LiveBeatImage>();
 
   /**
@@ -30,28 +31,36 @@ function EventNew() {
   async function handleOnSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
 
-    const target = e.target as typeof e.target & {
-      name: { value: string };
-      location: { value: string };
-      date: { value: string };
-    };
+    try {
+      const target = e.target as typeof e.target & {
+        name: { value: string };
+        location: { value: string };
+        date: { value: string };
+      };
 
-    let file;
+      let file;
 
-    if (image?.file) {
-      file = await uploadFile(image.file);
+      if (image?.file) {
+        file = await uploadFile(image.file);
+      }
+
+      const results = await createEvent({
+        name: target.name.value,
+        location: target.location.value,
+        date: new Date(target.date.value).toISOString(),
+        imageWidth: image?.width,
+        imageHeight: image?.height,
+        imageFileId: file?.$id,
+      });
+
+      navigate(`/event/${results.event.$id}`);
+    } catch (error: unknown) {
+      if (error instanceof AppwriteException) {
+        if (error.type === "user_unauthorized") {
+          setError("You must be logged in to submit a new event.");
+        }
+      }
     }
-
-    const results = await createEvent({
-      name: target.name.value,
-      location: target.location.value,
-      date: new Date(target.date.value).toISOString(),
-      imageWidth: image?.width,
-      imageHeight: image?.height,
-      imageFileId: file?.$id,
-    });
-
-    navigate(`/event/${results.event.$id}`);
   }
 
   function handleOnChange(event: React.FormEvent<HTMLInputElement>) {
