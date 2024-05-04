@@ -1,22 +1,13 @@
 import { Link } from "wouter";
 
 import Container from "@/components/Container";
-import { deleteCurrentSession, getCurrentSession } from "@/lib/auth";
-import { Models } from "appwrite";
-import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
 
 const Nav = () => {
-  const [session, setSession] = useState<Models.Session>();
-  useEffect(() => {
-    (async function run() {
-      const data = await getCurrentSession();
-      setSession(data.session);
-    })();
-  }, []);
+  const { session, logOut } = useAuth();
 
   async function handleLogOut() {
-    await deleteCurrentSession();
-    setSession(undefined);
+    await logOut();
   }
   return (
     <nav>

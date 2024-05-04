@@ -6,11 +6,13 @@ import Container from "@/components/Container";
 import EventCard from "@/components/EventCard";
 import Layout from "@/components/Layout";
 
+import { useAuth } from "@/hooks/use-auth";
 import { getEvents } from "@/lib/events";
 import { getPreviewImageById } from "@/lib/storage";
 import { useEffect, useState } from "react";
 
 function Home() {
+  const { session } = useAuth();
   const [events, setEvents] = useState<Array<LiveBeatEvent> | undefined>();
 
   useEffect(() => {
@@ -29,11 +31,13 @@ function Home() {
               Upcoming Events
             </h1>
             <p>
-              <Link href="/events/new">
-                <span className="inline-block rounded bg-slate-600 py-1.5 px-4 text-xs font-bold uppercase text-white hover:bg-slate-500 hover:text-white">
-                  Add Event
-                </span>
-              </Link>
+              {session && (
+                <Link href="/events/new">
+                  <span className="inline-block rounded bg-slate-600 py-1.5 px-4 text-xs font-bold uppercase text-white hover:bg-slate-500 hover:text-white">
+                    Add Event
+                  </span>
+                </Link>
+              )}
             </p>
           </Container>
 

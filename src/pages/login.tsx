@@ -4,10 +4,12 @@ import FormLabel from "@/components/FormLabel";
 import FormRow from "@/components/FormRow";
 import InputText from "@/components/InputText";
 import Layout from "@/components/Layout";
-import { logIn } from "@/lib/auth";
+import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
+import { Redirect } from "wouter";
 
 function LogIn() {
+  const { logIn, session } = useAuth();
   const [sent, setSent] = useState(false);
   async function handleOnSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -23,6 +25,11 @@ function LogIn() {
       setSent(false);
     }
   }
+
+  if (session) {
+    return <Redirect to="/" />;
+  }
+
   return (
     <Layout>
       <Container>

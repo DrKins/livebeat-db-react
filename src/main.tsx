@@ -1,14 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { Route } from 'wouter';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { Route } from "wouter";
 
-import Home from '@/pages/index';
-import Login from '@/pages/login';
-import Session from '@/pages/session';
-import EventsNew from '@/pages/events/new';
-import Event from '@/pages/event/[eventId]';
+import Event from "@/pages/event/[eventId]";
+import EventsNew from "@/pages/events/new";
+import Home from "@/pages/index";
+import Login from "@/pages/login";
+import Session from "@/pages/session";
 
-import '@/styles/global.css'
+import "@/styles/global.css";
+import { AuthProvider } from "./hooks/use-auth";
 
 const Router = () => {
   return (
@@ -19,11 +20,13 @@ const Router = () => {
       <Route path="/events/new" component={EventsNew} />
       <Route path="/event/:eventId" component={Event} />
     </>
-  )
-}
+  );
+};
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <Router />
-  </React.StrictMode>,
-)
+    <AuthProvider>
+      <Router />
+    </AuthProvider>
+  </React.StrictMode>
+);

@@ -1,9 +1,10 @@
 import Container from "@/components/Container";
-import { verifySession } from "@/lib/auth";
+import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 
 function Session() {
+  const { verifySession } = useAuth();
   const [, navigate] = useLocation();
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -17,7 +18,7 @@ function Session() {
 
     (async function run() {
       try {
-        if (userId) await verifySession(userId, secret);
+        if (userId) await verifySession({ userId, secret });
         navigate("/");
       } catch (error) {
         console.error("something went wrong with verify Session");
